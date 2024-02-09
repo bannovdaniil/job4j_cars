@@ -1,19 +1,15 @@
 package ru.job4j.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.Data;
 
-import java.time.LocalDateTime;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@Entity
+@Table(name = "users")
 public class User {
-    private int id;
-    private String description;
-    private LocalDateTime created;
-    private int userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String login;
+    private String password;
 }
