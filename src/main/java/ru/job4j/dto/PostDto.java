@@ -1,6 +1,9 @@
 package ru.job4j.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -12,5 +15,5 @@ public class PostDto {
     private int id;
     private String description;
     private LocalDateTime created;
-    private int user_id;
+    private int userId;
 }

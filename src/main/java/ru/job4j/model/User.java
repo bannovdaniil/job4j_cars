@@ -15,5 +15,5 @@ public class User {
     private int id;
     private String description;
     private LocalDateTime created;
-    private int user_id;
+    private int userId;
 }
