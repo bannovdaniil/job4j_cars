@@ -1,17 +1,20 @@
 package ru.job4j.repository;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.job4j.model.User;
 
 import java.util.List;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserRepository {
     private final SessionFactory sessionFactory;
+    private static final Logger LOG = LoggerFactory.getLogger(UserRepository.class);
 
     /**
      * Сохранить в базе.
@@ -77,7 +80,6 @@ public class UserRepository {
             session.getTransaction().rollback();
         } finally {
             session.close();
-
         }
     }
 
@@ -88,9 +90,15 @@ public class UserRepository {
      */
     public List<User> findAllOrderById() {
         Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User ORDER BY id", User.class);
-        List<User> userList = query.list();
-        session.close();
+        List<User> userList = List.of();
+        try {
+            Query<User> query = session.createQuery("FROM User ORDER BY id", User.class);
+            userList = query.list();
+        } catch (Exception e) {
+            LOG.error("Error findAllOrderById: {}", e.getMessage());
+        } finally {
+            session.close();
+        }
 
         return userList;
     }
@@ -102,12 +110,17 @@ public class UserRepository {
      */
     public Optional<User> findById(int userId) {
         Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User u WHERE u.id = :userId", User.class);
-        User user = query.setParameter("userId", userId).getSingleResult();
+        Optional<User> user = Optional.empty();
+        try {
+            Query<User> query = session.createQuery("FROM User u WHERE u.id = :userId", User.class);
+            user = query.setParameter("userId", userId).uniqueResultOptional();
+        } catch (Exception e) {
+            LOG.error("Error findById: {}", e.getMessage());
+        } finally {
+            session.close();
+        }
 
-        session.close();
-
-        return Optional.of(user);
+        return user;
     }
 
     /**
@@ -118,10 +131,16 @@ public class UserRepository {
      */
     public List<User> findByLikeLogin(String key) {
         Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User u WHERE u.login LIKE :key", User.class);
-        List<User> userList = query.setParameter("key", "%" + key + "%").list();
+        List<User> userList = List.of();
+        try {
+            Query<User> query = session.createQuery("FROM User u WHERE u.login LIKE :key", User.class);
+            userList = query.setParameter("key", "%" + key + "%").list();
 
-        session.close();
+        } catch (Exception e) {
+            LOG.error("Error findByLikeLogin: {}", e.getMessage());
+        } finally {
+            session.close();
+        }
 
         return userList;
     }
@@ -134,11 +153,16 @@ public class UserRepository {
      */
     public Optional<User> findByLogin(String login) {
         Session session = sessionFactory.openSession();
-        Query<User> query = session.createQuery("FROM User u WHERE u.login = :login", User.class);
-        User user = query.setParameter("login", login).getSingleResult();
+        Optional<User> user = Optional.empty();
+        try {
+            Query<User> query = session.createQuery("FROM User u WHERE u.login = :login", User.class);
+            user = query.setParameter("login", login).uniqueResultOptional();
+        } catch (Exception e) {
+            LOG.error("Error findByLogin: {}", e.getMessage());
+        } finally {
+            session.close();
+        }
 
-        session.close();
-
-        return Optional.of(user);
+        return user;
     }
 }
