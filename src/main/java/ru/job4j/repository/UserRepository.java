@@ -89,15 +89,16 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        Session session = sessionFactory.openSession();
         List<User> userList = List.of();
-        try {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
             Query<User> query = session.createQuery("FROM User ORDER BY id", User.class);
             userList = query.list();
+
+            session.getTransaction().commit();
         } catch (Exception e) {
             LOG.error("Error findAllOrderById: {}", e.getMessage());
-        } finally {
-            session.close();
         }
 
         return userList;
@@ -109,15 +110,16 @@ public class UserRepository {
      * @return пользователь.
      */
     public Optional<User> findById(int userId) {
-        Session session = sessionFactory.openSession();
         Optional<User> user = Optional.empty();
-        try {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
             Query<User> query = session.createQuery("FROM User u WHERE u.id = :userId", User.class);
             user = query.setParameter("userId", userId).uniqueResultOptional();
+
+            session.getTransaction().commit();
         } catch (Exception e) {
             LOG.error("Error findById: {}", e.getMessage());
-        } finally {
-            session.close();
         }
 
         return user;
@@ -130,16 +132,16 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        Session session = sessionFactory.openSession();
         List<User> userList = List.of();
-        try {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
             Query<User> query = session.createQuery("FROM User u WHERE u.login LIKE :key", User.class);
             userList = query.setParameter("key", "%" + key + "%").list();
 
+            session.getTransaction().commit();
         } catch (Exception e) {
             LOG.error("Error findByLikeLogin: {}", e.getMessage());
-        } finally {
-            session.close();
         }
 
         return userList;
@@ -152,15 +154,16 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        Session session = sessionFactory.openSession();
         Optional<User> user = Optional.empty();
-        try {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
             Query<User> query = session.createQuery("FROM User u WHERE u.login = :login", User.class);
             user = query.setParameter("login", login).uniqueResultOptional();
+
+            session.getTransaction().commit();
         } catch (Exception e) {
             LOG.error("Error findByLogin: {}", e.getMessage());
-        } finally {
-            session.close();
         }
 
         return user;
