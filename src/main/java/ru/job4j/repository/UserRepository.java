@@ -1,19 +1,17 @@
 package ru.job4j.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.job4j.model.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 public class UserRepository {
-    private final SessionFactory sessionFactory;
+    private final CrudRepository crudRepository;
     private static final Logger LOG = LoggerFactory.getLogger(UserRepository.class);
 
     /**
@@ -23,16 +21,7 @@ public class UserRepository {
      * @return пользователь с id.
      */
     public User create(User user) {
-        Session session = sessionFactory.openSession();
-        try {
-            session.beginTransaction();
-            session.persist(user);
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
+        crudRepository.run(session -> session.persist(user));
         return user;
     }
 
@@ -42,26 +31,7 @@ public class UserRepository {
      * @param user пользователь.
      */
     public void update(User user) {
-        Session session = sessionFactory.openSession();
-        try {
-            session.beginTransaction();
-            Query<User> query = session.createQuery("""
-                    UPDATE User
-                    SET login = :login,
-                      password = :password
-                    WHERE id = :userId
-                    """, User.class
-            );
-            query.setParameter("login", user.getLogin())
-                    .setParameter("password", user.getPassword())
-                    .setParameter("userId", user.getId())
-                    .executeUpdate();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
+        crudRepository.run(session -> session.merge(user));
     }
 
     /**
@@ -70,17 +40,10 @@ public class UserRepository {
      * @param userId ID
      */
     public void delete(int userId) {
-        Session session = sessionFactory.openSession();
-        try {
-            session.beginTransaction();
-            Query<User> query = session.createQuery("DELETE User WHERE id = :userId", User.class);
-            query.setParameter("userId", userId).executeUpdate();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
+        crudRepository.run(
+                "delete from User where id = :userId",
+                Map.of("userId", userId)
+        );
     }
 
     /**
@@ -89,19 +52,7 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        List<User> userList = List.of();
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Query<User> query = session.createQuery("FROM User ORDER BY id", User.class);
-            userList = query.list();
-
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            LOG.error("Error findAllOrderById: {}", e.getMessage());
-        }
-
-        return userList;
+        return crudRepository.query("from User order by id asc", User.class);
     }
 
     /**
@@ -110,19 +61,10 @@ public class UserRepository {
      * @return пользователь.
      */
     public Optional<User> findById(int userId) {
-        Optional<User> user = Optional.empty();
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Query<User> query = session.createQuery("FROM User u WHERE u.id = :userId", User.class);
-            user = query.setParameter("userId", userId).uniqueResultOptional();
-
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            LOG.error("Error findById: {}", e.getMessage());
-        }
-
-        return user;
+        return crudRepository.optional(
+                "from User where id = :userId", User.class,
+                Map.of("userId", userId)
+        );
     }
 
     /**
@@ -132,19 +74,10 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        List<User> userList = List.of();
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Query<User> query = session.createQuery("FROM User u WHERE u.login LIKE :key", User.class);
-            userList = query.setParameter("key", "%" + key + "%").list();
-
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            LOG.error("Error findByLikeLogin: {}", e.getMessage());
-        }
-
-        return userList;
+        return crudRepository.query(
+                "from User where login like :fKey", User.class,
+                Map.of("fKey", "%" + key + "%")
+        );
     }
 
     /**
@@ -154,18 +87,9 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        Optional<User> user = Optional.empty();
-        try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Query<User> query = session.createQuery("FROM User u WHERE u.login = :login", User.class);
-            user = query.setParameter("login", login).uniqueResultOptional();
-
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            LOG.error("Error findByLogin: {}", e.getMessage());
-        }
-
-        return user;
+        return crudRepository.optional(
+                "from User where login = :fLogin", User.class,
+                Map.of("fLogin", login)
+        );
     }
 }
