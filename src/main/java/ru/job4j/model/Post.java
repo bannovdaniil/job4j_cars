@@ -1,17 +1,16 @@
 package ru.job4j.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -20,5 +19,11 @@ public class Post {
     private Integer id;
     private String description;
     private LocalDateTime created;
-    private int userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "post_id")
+    private List<PriceHistory> priceHistoryList;
 }

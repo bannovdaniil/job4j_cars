@@ -5,6 +5,9 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import ru.job4j.model.User;
+import ru.job4j.repository.CrudRepository;
+import ru.job4j.repository.PostRepository;
+import ru.job4j.repository.PriceHistoryRepository;
 import ru.job4j.repository.UserRepository;
 
 public class UserUsage {
@@ -13,8 +16,13 @@ public class UserUsage {
                 .configure().build();
         try (SessionFactory sf = new MetadataSources(registry)
                 .buildMetadata().buildSessionFactory()) {
-            var userRepository = new UserRepository(sf);
-            var user = new User();
+            CrudRepository cr = new CrudRepository(sf);
+            UserRepository userRepository = new UserRepository(cr);
+
+            PostRepository postRepository = new PostRepository(cr);
+            PriceHistoryRepository priceHistoryRepository = new PriceHistoryRepository(cr);
+
+            User user = new User();
             user.setLogin("admin");
             user.setPassword("admin");
             userRepository.create(user);
@@ -28,6 +36,9 @@ public class UserUsage {
             userRepository.findById(user.getId()).ifPresent(System.out::println);
             userRepository.delete(user.getId());
             userRepository.findAllOrderById().forEach(System.out::println);
+
+            postRepository.findAll().forEach(System.out::println);
+            priceHistoryRepository.findAll().forEach(System.out::println);
         } finally {
             StandardServiceRegistryBuilder.destroy(registry);
         }
