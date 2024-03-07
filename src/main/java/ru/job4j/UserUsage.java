@@ -4,11 +4,14 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import ru.job4j.model.Post;
 import ru.job4j.model.User;
 import ru.job4j.repository.CrudRepository;
 import ru.job4j.repository.PostRepository;
 import ru.job4j.repository.PriceHistoryRepository;
 import ru.job4j.repository.UserRepository;
+
+import java.util.List;
 
 public class UserUsage {
     public static void main(String[] args) {
@@ -37,7 +40,10 @@ public class UserUsage {
             userRepository.delete(user.getId());
             userRepository.findAllOrderById().forEach(System.out::println);
 
-            postRepository.findAll().forEach(System.out::println);
+            List<Post> postList = postRepository.findAll();
+            for (Post post : postList) {
+                System.out.println("post. = " + post);
+            }
             priceHistoryRepository.findAll().forEach(System.out::println);
         } finally {
             StandardServiceRegistryBuilder.destroy(registry);

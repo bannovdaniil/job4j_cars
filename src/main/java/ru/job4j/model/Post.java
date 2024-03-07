@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"participates", "priceHistoryList"})
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -24,11 +24,11 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "post_id")
     private List<PriceHistory> priceHistoryList;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "participates",
             joinColumns = {@JoinColumn(name = "post_id")},
