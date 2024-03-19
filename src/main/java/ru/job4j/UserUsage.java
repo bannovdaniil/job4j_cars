@@ -6,10 +6,13 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import ru.job4j.model.Post;
 import ru.job4j.model.User;
-import ru.job4j.repository.CrudRepository;
 import ru.job4j.repository.PostRepository;
 import ru.job4j.repository.PriceHistoryRepository;
 import ru.job4j.repository.UserRepository;
+import ru.job4j.repository.impl.CrudRepository;
+import ru.job4j.repository.impl.PostRepositoryImpl;
+import ru.job4j.repository.impl.PriceHistoryRepositoryImpl;
+import ru.job4j.repository.impl.UserRepositoryImpl;
 
 import java.util.List;
 
@@ -20,10 +23,10 @@ public class UserUsage {
         try (SessionFactory sf = new MetadataSources(registry)
                 .buildMetadata().buildSessionFactory()) {
             CrudRepository cr = new CrudRepository(sf);
-            UserRepository userRepository = new UserRepository(cr);
+            UserRepository userRepository = new UserRepositoryImpl(cr);
 
-            PostRepository postRepository = new PostRepository(cr);
-            PriceHistoryRepository priceHistoryRepository = new PriceHistoryRepository(cr);
+            PostRepository postRepository = new PostRepositoryImpl(cr);
+            PriceHistoryRepository priceHistoryRepository = new PriceHistoryRepositoryImpl(cr);
 
             User user = new User();
             user.setLogin("admin");
