@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ru.job4j.model.Post;
 import ru.job4j.repository.PostRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,8 +66,34 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public Optional<Post> findById(int postId) {
         return crudRepository.optional(
-                "from Post where id = :postId", Post.class,
+                "from Post p where p.id = :postId", Post.class,
                 Map.of("postId", postId)
+        );
+    }
+
+    @Override
+    public List<Post> findAll(LocalDate date) {
+        return crudRepository.query(
+                "from Post p where DATE(p.created) = :date", Post.class,
+                Map.of("date", date)
+        );
+    }
+
+    @Override
+    public List<Post> findAll(String model) {
+        return crudRepository.query(
+                "from Post p where p.description LIKE :model", Post.class,
+                Map.of("model", String.format("%%%s%%", model))
+        );
+    }
+
+    @Override
+    public List<Post> findWithPhotos() {
+        return crudRepository.query("""
+                SELECT DISTINCT p
+                  FROM Post p
+                    LEFT JOIN FETCH p.photoList ph WHERE SIZE(ph) > 0
+                """, Post.class
         );
     }
 

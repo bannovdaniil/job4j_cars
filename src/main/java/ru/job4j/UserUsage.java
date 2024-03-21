@@ -14,6 +14,7 @@ import ru.job4j.repository.impl.PostRepositoryImpl;
 import ru.job4j.repository.impl.PriceHistoryRepositoryImpl;
 import ru.job4j.repository.impl.UserRepositoryImpl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class UserUsage {
@@ -47,6 +48,22 @@ public class UserUsage {
             for (Post post : postList) {
                 System.out.println("post. = " + post);
             }
+
+            postList = postRepository.findWithPhotos();
+            for (Post post : postList) {
+                System.out.println("post. = " + post);
+            }
+
+            postList = postRepository.findAll("ение 3");
+            for (Post post : postList) {
+                System.out.println("post. = " + post);
+            }
+
+            postList = postRepository.findAll(LocalDate.now());
+            for (Post post : postList) {
+                System.out.println("post. = " + post);
+            }
+
             priceHistoryRepository.findAll().forEach(System.out::println);
         } finally {
             StandardServiceRegistryBuilder.destroy(registry);
